@@ -1,0 +1,44 @@
+name: RobotRob
+options:
+  bundleIdPrefix: com.willvesevick
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: 5.0
+    CODE_SIGN_STYLE: Automatic
+targets:
+  RobotRob:
+    type: application
+    platform: iOS
+    sources:
+      - path: RobotRobApp/Sources
+    resources:
+      - path: RobotRobApp/Resources
+    info:
+      path: RobotRobApp/Info.plist
+      properties:
+        CFBundleDisplayName: Robot Rob
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.willvesevick.robotrob
+        MARKETING_VERSION: 1.0
+        CURRENT_PROJECT_VERSION: 1
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+schemes:
+  RobotRob:
+    build:
+      targets:
+        RobotRob: all
+    run:
+      config: Debug

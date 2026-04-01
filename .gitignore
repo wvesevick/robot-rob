@@ -1,0 +1,24 @@
+.DS_Store
+*.swp
+*.swo
+
+# Xcode user and build artifacts
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+
+# Archives and exports
+*.ipa
+*.xcarchive
+
+# Local envs
+.venv/
+
+# Generated clue assets (regenerated in CI and local pipeline)
+RobotRobApp/Resources/Assets.xcassets/clue_*.imageset/
+clue_preview_grid.png
+
+# macOS metadata
+.AppleDouble
+.LSOverride
