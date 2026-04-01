@@ -96,7 +96,7 @@ private struct GradeSelectionView: View {
                 }
                 .funCard()
 
-                Link("Privacy Policy", destination: URL(string: "https://paste.rs/65Y4y")!)
+                Link("Privacy Policy", destination: URL(string: "https://wvesevick.github.io/robot-rob/privacy-policy.html")!)
                     .font(.system(size: 14, weight: .bold, design: .rounded))
                     .foregroundStyle(Color(red: 0.11, green: 0.44, blue: 0.88))
             }

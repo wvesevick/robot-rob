@@ -6,9 +6,9 @@
 - Primary Category: `Education`
 - Secondary Category: `Games`
 - Price: `Free`
-- Privacy Policy URL: `https://paste.rs/65Y4y`
-- Support URL: `https://paste.rs/65Y4y`
-- Marketing URL (optional): `https://paste.rs/65Y4y`
+- Privacy Policy URL: `https://wvesevick.github.io/robot-rob/privacy-policy.html`
+- Support URL: `https://wvesevick.github.io/robot-rob/privacy-policy.html`
+- Marketing URL (optional): `https://wvesevick.github.io/robot-rob/privacy-policy.html`
 
 ## Promotional Text (170 characters max)
 Help Robot Rob stay together in Vanishing Man. Kids choose their grade, solve playful word puzzles, and learn with colorful clues, a timer, and fun sound effects.

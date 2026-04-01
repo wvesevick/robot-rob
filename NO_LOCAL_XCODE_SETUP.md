@@ -67,4 +67,4 @@ In App Store Connect:
 ## Notes
 - You can test as many TestFlight builds as needed before submitting for App Review.
 - If signing fails in CI, verify key permissions and bundle id match.
-- App privacy policy URL for submission: `https://paste.rs/65Y4y`
+- App privacy policy URL for submission: `https://wvesevick.github.io/robot-rob/privacy-policy.html`

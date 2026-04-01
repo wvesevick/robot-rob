@@ -13,7 +13,7 @@
 - Robot art pieces integrated and animated to vanish
 - Light sound effects and celebration sound (no narration)
 - Free app setup with no account/data collection in app logic
-- Public privacy policy URL created: `https://paste.rs/65Y4y`
+- Public privacy policy URL created: `https://wvesevick.github.io/robot-rob/privacy-policy.html`
 - Full App Store listing copy prepared in `APP_STORE_LISTING.md`
 
 ## Still Needed From You Before App Store Submit
