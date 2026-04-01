@@ -15,8 +15,7 @@ build/
 # Local envs
 .venv/
 
-# Generated clue assets (regenerated in CI and local pipeline)
-RobotRobApp/Resources/Assets.xcassets/clue_*.imageset/
+# Generated preview helper artifact
 clue_preview_grid.png
 
 # macOS metadata
