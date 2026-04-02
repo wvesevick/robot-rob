@@ -45,6 +45,13 @@ struct WordCategory: Identifiable, Hashable {
     let icon: String
     let words: [PuzzleWord]
     let isRobotCategory: Bool
+
+    var previewImageAssetName: String {
+        if isRobotCategory {
+            return "robot_reference"
+        }
+        return words.first?.clueImageAssetName ?? "robot_reference"
+    }
 }
 
 enum GameState {

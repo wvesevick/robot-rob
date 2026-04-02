@@ -47,6 +47,28 @@ final class GameViewModel: ObservableObject {
         currentPuzzle?.answer.uppercased() ?? ""
     }
 
+    var uniqueAnswerLetterCount: Int {
+        Set(currentAnswer.filter(\.isAlphabetic)).count
+    }
+
+    var correctLetterCount: Int {
+        let answerLetters = Set(currentAnswer.filter(\.isAlphabetic))
+        return guessedLetters.intersection(answerLetters).count
+    }
+
+    var vanishStep: Int {
+        guard uniqueAnswerLetterCount > 0 else { return 0 }
+        if gameState == .won { return maxWrongGuesses }
+
+        let ratio = Double(correctLetterCount) / Double(uniqueAnswerLetterCount)
+        var step = Int((ratio * Double(maxWrongGuesses)).rounded(.down))
+        if correctLetterCount > 0 {
+            step = max(1, step)
+        }
+
+        return min(maxWrongGuesses, step)
+    }
+
     func setTimerMinutes(_ value: Int) {
         timerMinutes = min(20, max(1, value))
         if gameState != .playing {
@@ -150,7 +172,7 @@ final class GameViewModel: ObservableObject {
 
         if wrongGuesses >= maxWrongGuesses {
             gameState = .lostByTries
-            KidSoundEffects.robotVanished()
+            KidSoundEffects.roundFailed()
         }
     }
 
@@ -212,7 +234,7 @@ enum KidSoundEffects {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
 
-    static func robotVanished() {
+    static func roundFailed() {
         AudioServicesPlaySystemSound(1006)
         UINotificationFeedbackGenerator().notificationOccurred(.error)
     }
