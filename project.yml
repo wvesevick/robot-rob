@@ -13,12 +13,13 @@ targets:
     platform: iOS
     sources:
       - path: RobotRobApp/Sources
-    resources:
       - path: RobotRobApp/Resources
+        buildPhase: resources
     info:
       path: RobotRobApp/Info.plist
       properties:
         CFBundleDisplayName: Robot Rob
+        CFBundleIconName: AppIcon
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UILaunchScreen: {}

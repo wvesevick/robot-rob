@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00139065B27D92203275AEF8 /* RobotRobApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41329A0F2423E515038D7258 /* RobotRobApp.swift */; };
+		258D9D09164619E60F3DCC5B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1DA6759BD22F9D7C2CBACD48 /* Assets.xcassets */; };
 		404D6E4670ADAB4C59C1A4A0 /* GameModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B70FEF384883BE76E725C87 /* GameModels.swift */; };
 		6A31A2DAEE7B690F96182331 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE20EA89B7C756DE0D82D6B /* ContentView.swift */; };
 		893884E3DC92DA6FE1CA6838 /* GameData.swift in Sources */ = {isa = PBXBuildFile; fileRef = E090EE1338681CA2B66FA243 /* GameData.swift */; };
@@ -16,6 +17,7 @@
 
 /* Begin PBXFileReference section */
 		1B70FEF384883BE76E725C87 /* GameModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameModels.swift; sourceTree = "<group>"; };
+		1DA6759BD22F9D7C2CBACD48 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		41329A0F2423E515038D7258 /* RobotRobApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RobotRobApp.swift; sourceTree = "<group>"; };
 		67E4E399991AF6E316443DA1 /* GameViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewModel.swift; sourceTree = "<group>"; };
 		A8756ECD6C41BBF4BD21790F /* RobotRob.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RobotRob.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -32,9 +34,19 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		631C1A5C6C54BA0CA6B8681D /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				1DA6759BD22F9D7C2CBACD48 /* Assets.xcassets */,
+			);
+			name = Resources;
+			path = RobotRobApp/Resources;
+			sourceTree = "<group>";
+		};
 		87DFE647BB7A6F5C84B366DE = {
 			isa = PBXGroup;
 			children = (
+				631C1A5C6C54BA0CA6B8681D /* Resources */,
 				A1619E7B1E586874E9E760A5 /* Sources */,
 				30551C6F9CF6A914175C315E /* Products */,
 			);
@@ -61,6 +73,7 @@
 			buildConfigurationList = 95552E56B32985CDA997420D /* Build configuration list for PBXNativeTarget "RobotRob" */;
 			buildPhases = (
 				4E2CD088D461F39D581AEF71 /* Sources */,
+				B157B829178EF3F239D66B5B /* Resources */,
 			);
 			buildRules = (
 			);
@@ -105,6 +118,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B157B829178EF3F239D66B5B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				258D9D09164619E60F3DCC5B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4E2CD088D461F39D581AEF71 /* Sources */ = {
