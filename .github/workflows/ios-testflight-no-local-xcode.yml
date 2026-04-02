@@ -25,7 +25,7 @@ jobs:
       APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-      ASC_PRIVATE_KEY_B64: ${{ secrets.ASC_PRIVATE_KEY_B64 }}
+      ASC_PRIVATE_KEY_P8: ${{ secrets.ASC_PRIVATE_KEY_P8 }}
 
     steps:
       - name: Checkout
@@ -33,7 +33,7 @@ jobs:
 
       - name: Validate required secrets
         run: |
-          for var in APPLE_TEAM_ID APP_BUNDLE_ID ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY_B64; do
+          for var in APPLE_TEAM_ID APP_BUNDLE_ID ASC_KEY_ID ASC_ISSUER_ID ASC_PRIVATE_KEY_P8; do
             if [ -z "${!var}" ]; then
               echo "Missing required secret: $var"
               exit 1
@@ -61,16 +61,10 @@ jobs:
 
       - name: Write App Store Connect key
         run: |
-          python3 - <<'PY' >> "$GITHUB_ENV"
-          import base64
-          import os
-          from pathlib import Path
-
-          key_bytes = base64.b64decode(os.environ["ASC_PRIVATE_KEY_B64"])
-          path = Path(os.environ["RUNNER_TEMP"]) / f"AuthKey_{os.environ['ASC_KEY_ID']}.p8"
-          path.write_bytes(key_bytes)
-          print(f"ASC_KEY_PATH={path}")
-          PY
+          ASC_KEY_PATH="$RUNNER_TEMP/AuthKey_${ASC_KEY_ID}.p8"
+          printf "%s" "$ASC_PRIVATE_KEY_P8" > "$ASC_KEY_PATH"
+          chmod 600 "$ASC_KEY_PATH"
+          echo "ASC_KEY_PATH=$ASC_KEY_PATH" >> "$GITHUB_ENV"
 
       - name: Archive app
         run: |
