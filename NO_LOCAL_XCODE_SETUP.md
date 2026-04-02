@@ -28,7 +28,7 @@ In App Store Connect:
 In GitHub repo settings -> `Secrets and variables` -> `Actions`, add:
 
 - `APPLE_TEAM_ID` = your Apple Team ID
-- `APP_BUNDLE_ID` = `com.willvesevick.robotrob` (or your final bundle id)
+- `APP_BUNDLE_ID` = `com.wcvesevick.robotrob` (or your final bundle id)
 - `ASC_KEY_ID` = App Store Connect API Key ID
 - `ASC_ISSUER_ID` = App Store Connect Issuer ID
 - `ASC_PRIVATE_KEY_B64` = base64 of your `.p8` file

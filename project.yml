@@ -31,7 +31,7 @@ targets:
           - UIInterfaceOrientationLandscapeRight
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.willvesevick.robotrob
+        PRODUCT_BUNDLE_IDENTIFIER: com.wcvesevick.robotrob
         MARKETING_VERSION: 1.0
         CURRENT_PROJECT_VERSION: 1
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
