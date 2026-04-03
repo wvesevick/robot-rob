@@ -226,7 +226,7 @@ private struct GameScreenView: View {
                 }
 
                 VanishingRobotView(
-                    vanishStep: viewModel.vanishStep,
+                    vanishProgress: viewModel.vanishProgress,
                     correctLetters: viewModel.correctLetterCount,
                     totalLetters: viewModel.uniqueAnswerLetterCount,
                     wrongGuesses: viewModel.wrongGuesses
@@ -254,7 +254,7 @@ private struct GameScreenView: View {
                                     RoundedRectangle(cornerRadius: 10)
                                         .fill(keyColor(for: letter))
                                 )
-                                .foregroundStyle(.black)
+                                .foregroundStyle(keyTextColor(for: letter))
                         }
                         .buttonStyle(.plain)
                         .disabled(!viewModel.isPlaying || viewModel.buttonState(for: letter) != .fresh)
@@ -386,6 +386,12 @@ private struct GameScreenView: View {
             return Color(red: 1.00, green: 0.63, blue: 0.64)
         }
     }
+
+    private func keyTextColor(for letter: Character) -> Color {
+        viewModel.isVowel(letter)
+            ? Color(red: 0.13, green: 0.45, blue: 0.95)
+            : .black
+    }
 }
 
 private struct WordTilesView: View {
@@ -434,23 +440,15 @@ private struct WordTilesView: View {
 }
 
 private struct VanishingRobotView: View {
-    let vanishStep: Int
+    let vanishProgress: Double
     let correctLetters: Int
     let totalLetters: Int
     let wrongGuesses: Int
 
     var body: some View {
-        let stageOpacity: Double = {
-            if vanishStep >= 10 { return 0.0 }
-            if vanishStep == 9 { return 0.30 }
-            return 1.0
-        }()
-
-        let stageScale: CGFloat = {
-            if vanishStep >= 10 { return 0.45 }
-            if vanishStep == 9 { return 0.80 }
-            return 1.0
-        }()
+        let clampedProgress = min(max(vanishProgress, 0.0), 1.0)
+        let robotOpacity = max(0.0, 1.0 - clampedProgress)
+        let robotScale = CGFloat(1.0 - (0.15 * clampedProgress))
 
         VStack(spacing: 6) {
             Text("Robot Rob Vanish Meter")
@@ -465,31 +463,16 @@ private struct VanishingRobotView: View {
                 .font(.system(size: 14, weight: .bold, design: .rounded))
                 .foregroundStyle(Color(red: 1.00, green: 0.64, blue: 0.66))
 
-            VStack(spacing: -4) {
-                ZStack {
-                    robotPart("robot_left_antenna", hideAt: 1, width: 28)
-                        .offset(x: -60, y: -24)
-                    robotPart("robot_right_antenna", hideAt: 2, width: 28)
-                        .offset(x: 60, y: -24)
-                    robotPart("robot_head", hideAt: 5, width: 132)
-                }
-
-                HStack(spacing: 8) {
-                    robotPart("robot_left_arm", hideAt: 3, width: 52)
-                    robotPart("robot_body", hideAt: 6, width: 128)
-                    robotPart("robot_right_arm", hideAt: 4, width: 52)
-                }
-
-                HStack(spacing: 44) {
-                    robotPart("robot_left_leg", hideAt: 7, width: 42)
-                    robotPart("robot_right_leg", hideAt: 8, width: 42)
-                }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 2)
-            .opacity(stageOpacity)
-            .scaleEffect(stageScale)
-            .animation(.easeInOut(duration: 0.35), value: vanishStep)
+            Image("robot_rob")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .frame(height: 220)
+                .saturation(1.04)
+                .contrast(1.02)
+                .opacity(robotOpacity)
+                .scaleEffect(robotScale)
+                .animation(.easeInOut(duration: 0.35), value: clampedProgress)
         }
         .frame(maxWidth: .infinity)
         .padding(12)
@@ -501,18 +484,6 @@ private struct VanishingRobotView: View {
                         .stroke(Color(red: 0.95, green: 0.34, blue: 0.36), lineWidth: 2.5)
                 )
         )
-    }
-
-    private func robotPart(_ asset: String, hideAt threshold: Int, width: CGFloat) -> some View {
-        Image(asset)
-            .resizable()
-            .interpolation(.high)
-            .scaledToFit()
-            .frame(width: width)
-            .saturation(1.3)
-            .contrast(1.1)
-            .opacity(vanishStep >= threshold ? 0.0 : 1.0)
-            .animation(.easeInOut(duration: 0.25), value: vanishStep)
     }
 }
 
@@ -533,7 +504,7 @@ private struct ClueCard: View {
 
                 if isRobotCategory {
                     HStack(spacing: 4) {
-                        Image("robot_head")
+                        Image("robot_rob")
                             .resizable()
                             .scaledToFit()
                             .frame(width: 22, height: 22)
@@ -675,40 +646,16 @@ private struct RobotRobEnhancedView: View {
                         .stroke(Color(red: 0.91, green: 0.28, blue: 0.30), lineWidth: 2)
                 )
 
-            VStack(spacing: -4) {
-                ZStack {
-                    robotPiece("robot_left_antenna", width: 30)
-                        .offset(x: -58, y: -26)
-                    robotPiece("robot_right_antenna", width: 30)
-                        .offset(x: 58, y: -26)
-                    robotPiece("robot_head", width: 138)
-                }
-
-                HStack(spacing: 8) {
-                    robotPiece("robot_left_arm", width: 56)
-                    robotPiece("robot_body", width: 134)
-                    robotPiece("robot_right_arm", width: 56)
-                }
-
-                HStack(spacing: 46) {
-                    robotPiece("robot_left_leg", width: 44)
-                    robotPiece("robot_right_leg", width: 44)
-                }
-            }
-            .padding(.top, 6)
-            .shadow(color: Color(red: 0.41, green: 0.80, blue: 1.00).opacity(0.25), radius: 10, x: 0, y: 5)
+            Image("robot_rob")
+                .resizable()
+                .interpolation(.high)
+                .scaledToFit()
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .saturation(1.05)
+                .contrast(1.03)
+                .shadow(color: Color(red: 0.41, green: 0.80, blue: 1.00).opacity(0.25), radius: 10, x: 0, y: 5)
         }
         .frame(height: height)
-    }
-
-    private func robotPiece(_ asset: String, width: CGFloat) -> some View {
-        Image(asset)
-            .resizable()
-            .interpolation(.high)
-            .scaledToFit()
-            .frame(width: width)
-            .saturation(1.35)
-            .contrast(1.12)
-            .brightness(0.02)
     }
 }

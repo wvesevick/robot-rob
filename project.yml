@@ -20,6 +20,8 @@ targets:
       properties:
         CFBundleDisplayName: Robot Rob
         CFBundleIconName: AppIcon
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         UILaunchScreen: {}
@@ -34,7 +36,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.wcvesevick.robotrob
         MARKETING_VERSION: 1.0
-        CURRENT_PROJECT_VERSION: 1
+        CURRENT_PROJECT_VERSION: 202604021907
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 schemes:
   RobotRob:

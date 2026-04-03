@@ -48,9 +48,9 @@ struct WordCategory: Identifiable, Hashable {
 
     var previewImageAssetName: String {
         if isRobotCategory {
-            return "robot_reference"
+            return "robot_rob"
         }
-        return words.first?.clueImageAssetName ?? "robot_reference"
+        return words.first?.clueImageAssetName ?? "robot_rob"
     }
 }
 

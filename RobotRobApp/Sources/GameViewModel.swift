@@ -56,17 +56,11 @@ final class GameViewModel: ObservableObject {
         return guessedLetters.intersection(answerLetters).count
     }
 
-    var vanishStep: Int {
-        guard uniqueAnswerLetterCount > 0 else { return 0 }
-        if gameState == .won { return maxWrongGuesses }
+    var vanishProgress: Double {
+        guard uniqueAnswerLetterCount > 0 else { return 0.0 }
+        if gameState == .won { return 1.0 }
 
-        let ratio = Double(correctLetterCount) / Double(uniqueAnswerLetterCount)
-        var step = Int((ratio * Double(maxWrongGuesses)).rounded(.down))
-        if correctLetterCount > 0 {
-            step = max(1, step)
-        }
-
-        return min(maxWrongGuesses, step)
+        return min(1.0, Double(correctLetterCount) / Double(uniqueAnswerLetterCount))
     }
 
     func setTimerMinutes(_ value: Int) {
