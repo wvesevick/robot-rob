@@ -580,14 +580,27 @@ private struct WordTilesView: View {
 
 private struct RobotDisassemblyView: View {
     private enum RobotPart: CaseIterable {
-        case leftAntenna
         case rightAntenna
-        case leftArm
+        case leftAntenna
         case rightArm
         case leftLeg
         case rightLeg
         case body
         case head
+        case leftArm
+
+        var maskAssetName: String {
+            switch self {
+            case .rightAntenna: return "robot_layer_right_antenna"
+            case .leftAntenna: return "robot_layer_left_antenna"
+            case .rightArm: return "robot_layer_right_arm"
+            case .leftLeg: return "robot_layer_left_leg"
+            case .rightLeg: return "robot_layer_right_leg"
+            case .body: return "robot_layer_body"
+            case .head: return "robot_layer_head"
+            case .leftArm: return "robot_layer_left_arm"
+            }
+        }
     }
 
     let removedPartCount: Int
@@ -620,22 +633,24 @@ private struct RobotDisassemblyView: View {
             }
 
             ZStack {
-                Image("robot_rob_split")
+                Image("robot_layer_full")
                     .resizable()
                     .interpolation(.high)
                     .scaledToFill()
                     .frame(width: 240, height: 360)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
 
-                GeometryReader { geometry in
-                    ForEach(Array(RobotPart.allCases.enumerated()), id: \.offset) { index, part in
-                        if index < removed {
-                            partMaskView(for: part, in: geometry.size)
-                                .blendMode(.destinationOut)
-                        }
+                ForEach(Array(RobotPart.allCases.enumerated()), id: \.offset) { index, part in
+                    if index < removed {
+                        Image(part.maskAssetName)
+                            .resizable()
+                            .interpolation(.high)
+                            .scaledToFill()
+                            .frame(width: 240, height: 360)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .blendMode(.destinationOut)
                     }
                 }
-                .frame(width: 240, height: 360)
             }
             .compositingGroup()
             .animation(.easeInOut(duration: 0.35), value: removed)
@@ -650,52 +665,6 @@ private struct RobotDisassemblyView: View {
                         .stroke(Color(red: 0.95, green: 0.34, blue: 0.36), lineWidth: 2.5)
                 )
         )
-    }
-
-    @ViewBuilder
-    private func partMaskView(for part: RobotPart, in size: CGSize) -> some View {
-        switch part {
-        case .leftAntenna:
-            Circle()
-                .fill(Color.white)
-                .frame(width: size.width * 0.15, height: size.width * 0.15)
-                .position(x: size.width * 0.38, y: size.height * 0.86)
-        case .rightAntenna:
-            Circle()
-                .fill(Color.white)
-                .frame(width: size.width * 0.15, height: size.width * 0.15)
-                .position(x: size.width * 0.63, y: size.height * 0.86)
-        case .leftArm:
-            RoundedRectangle(cornerRadius: size.width * 0.10)
-                .fill(Color.white)
-                .frame(width: size.width * 0.26, height: size.height * 0.26)
-                .position(x: size.width * 0.16, y: size.height * 0.47)
-        case .rightArm:
-            RoundedRectangle(cornerRadius: size.width * 0.10)
-                .fill(Color.white)
-                .frame(width: size.width * 0.26, height: size.height * 0.26)
-                .position(x: size.width * 0.84, y: size.height * 0.47)
-        case .leftLeg:
-            RoundedRectangle(cornerRadius: size.width * 0.10)
-                .fill(Color.white)
-                .frame(width: size.width * 0.25, height: size.height * 0.31)
-                .position(x: size.width * 0.26, y: size.height * 0.69)
-        case .rightLeg:
-            RoundedRectangle(cornerRadius: size.width * 0.10)
-                .fill(Color.white)
-                .frame(width: size.width * 0.25, height: size.height * 0.31)
-                .position(x: size.width * 0.74, y: size.height * 0.69)
-        case .body:
-            RoundedRectangle(cornerRadius: size.width * 0.08)
-                .fill(Color.white)
-                .frame(width: size.width * 0.48, height: size.height * 0.18)
-                .position(x: size.width * 0.50, y: size.height * 0.46)
-        case .head:
-            RoundedRectangle(cornerRadius: size.width * 0.10)
-                .fill(Color.white)
-                .frame(width: size.width * 0.72, height: size.height * 0.26)
-                .position(x: size.width * 0.50, y: size.height * 0.16)
-        }
     }
 }
 
