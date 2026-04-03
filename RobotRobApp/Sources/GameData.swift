@@ -12,7 +12,7 @@ enum GameData {
         let mysteryWords = gradeWords.map {
             PuzzleWord(
                 answer: $0.answer,
-                clue: "Robot Rob picked a mystery \(grade.rawValue.lowercased()) word!",
+                clue: normalizedHint($0.clue),
                 emoji: "🤖"
             )
         }
@@ -24,6 +24,30 @@ enum GameData {
             words: mysteryWords,
             isRobotCategory: true
         )
+    }
+
+    private static func normalizedHint(_ clue: String) -> String {
+        let words = clue
+            .replacingOccurrences(of: "[^A-Za-z0-9 ]+", with: " ", options: .regularExpression)
+            .split(whereSeparator: \.isWhitespace)
+            .map(String.init)
+
+        if words.count >= 5, words.count <= 10 {
+            return words.joined(separator: " ")
+        }
+
+        if words.count < 5 {
+            var padded = words
+            let filler = ["think", "carefully", "about", "this", "word"]
+            var index = 0
+            while padded.count < 5 {
+                padded.append(filler[index % filler.count])
+                index += 1
+            }
+            return padded.joined(separator: " ")
+        }
+
+        return words.prefix(10).joined(separator: " ")
     }
 
     private static func baseCategories(for grade: GradeLevel) -> [WordCategory] {

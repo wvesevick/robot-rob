@@ -2,7 +2,8 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var viewModel = GameViewModel()
-    @State private var hasStarted = false
+    @State private var showRobotPlay = false
+    @State private var showRoundSetup = false
 
     var body: some View {
         ZStack {
@@ -14,16 +15,49 @@ struct ContentView: View {
             .ignoresSafeArea()
 
             Group {
-                if !hasStarted {
-                    StartScreenView {
-                        hasStarted = true
+                if viewModel.selectedGrade == nil {
+                    GradeSelectionView(viewModel: viewModel) { selectedGrade in
+                        viewModel.selectGrade(selectedGrade)
+                        showRobotPlay = true
+                        showRoundSetup = false
                     }
-                } else if viewModel.selectedGrade == nil {
-                    GradeSelectionView(viewModel: viewModel)
-                } else if viewModel.selectedCategory == nil {
-                    CategorySelectionView(viewModel: viewModel)
+                } else if showRobotPlay {
+                    RobotPlayView(
+                        gradeName: viewModel.selectedGrade?.rawValue ?? "",
+                        onBack: {
+                            viewModel.backToGradeSelection()
+                            showRobotPlay = false
+                            showRoundSetup = false
+                        },
+                        onPlay: {
+                            showRobotPlay = false
+                            showRoundSetup = true
+                        }
+                    )
+                } else if showRoundSetup {
+                    RoundSetupView(
+                        viewModel: viewModel,
+                        onBack: {
+                            showRobotPlay = true
+                            showRoundSetup = false
+                        },
+                        onStart: {
+                            viewModel.startRound()
+                            showRoundSetup = false
+                        }
+                    )
                 } else {
-                    GameScreenView(viewModel: viewModel)
+                    GameScreenView(
+                        viewModel: viewModel,
+                        onBackToSetup: {
+                            showRoundSetup = true
+                        },
+                        onBackToGrade: {
+                            viewModel.backToGradeSelection()
+                            showRobotPlay = false
+                            showRoundSetup = false
+                        }
+                    )
                 }
             }
             .padding(.horizontal, 18)
@@ -32,39 +66,9 @@ struct ContentView: View {
     }
 }
 
-private struct StartScreenView: View {
-    let onPlay: () -> Void
-
-    var body: some View {
-        VStack(spacing: 22) {
-            Spacer(minLength: 20)
-
-            Text("Robot Rob")
-                .font(.system(size: 46, weight: .black, design: .rounded))
-                .foregroundStyle(Color(red: 0.98, green: 0.33, blue: 0.34))
-
-            RobotRobEnhancedView(height: 310)
-
-            Button(action: onPlay) {
-                Text("Play!")
-                    .font(.system(size: 30, weight: .black, design: .rounded))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color(red: 0.11, green: 0.84, blue: 0.55))
-                    )
-                    .foregroundStyle(.black)
-            }
-            .buttonStyle(.plain)
-
-            Spacer()
-        }
-    }
-}
-
 private struct GradeSelectionView: View {
     @ObservedObject var viewModel: GameViewModel
+    let onGradeSelected: (GradeLevel) -> Void
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -84,7 +88,7 @@ private struct GradeSelectionView: View {
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(GradeLevel.allCases) { grade in
                         Button {
-                            viewModel.selectGrade(grade)
+                            onGradeSelected(grade)
                         } label: {
                             Text(grade.rawValue)
                                 .font(.system(size: 21, weight: .black, design: .rounded))
@@ -106,6 +110,121 @@ private struct GradeSelectionView: View {
             }
             .padding(.top, 16)
             .padding(.bottom, 24)
+        }
+    }
+}
+
+private struct RobotPlayView: View {
+    let gradeName: String
+    let onBack: () -> Void
+    let onPlay: () -> Void
+
+    var body: some View {
+        VStack(spacing: 18) {
+            HStack {
+                Button(action: onBack) {
+                    Label("Grades", systemImage: "chevron.left")
+                        .font(.system(size: 15, weight: .bold, design: .rounded))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.white)
+
+                Spacer()
+
+                Text(gradeName)
+                    .font(.system(size: 16, weight: .black, design: .rounded))
+                    .foregroundStyle(Color(red: 0.55, green: 0.83, blue: 1.00))
+            }
+
+            Spacer(minLength: 8)
+
+            Text("Robot Rob")
+                .font(.system(size: 46, weight: .black, design: .rounded))
+                .foregroundStyle(Color(red: 0.98, green: 0.33, blue: 0.34))
+
+            RobotRobEnhancedView(height: 315)
+
+            Button(action: onPlay) {
+                Text("Play!")
+                    .font(.system(size: 30, weight: .black, design: .rounded))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color(red: 0.11, green: 0.84, blue: 0.55))
+                    )
+                    .foregroundStyle(.black)
+            }
+            .buttonStyle(.plain)
+
+            Spacer(minLength: 6)
+        }
+    }
+}
+
+private struct RoundSetupView: View {
+    @ObservedObject var viewModel: GameViewModel
+    let onBack: () -> Void
+    let onStart: () -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 14) {
+                HStack {
+                    Button(action: onBack) {
+                        Label("Robot Rob", systemImage: "chevron.left")
+                            .font(.system(size: 15, weight: .bold, design: .rounded))
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.white)
+
+                    Spacer()
+
+                    Text(viewModel.selectedGrade?.rawValue ?? "")
+                        .font(.system(size: 16, weight: .black, design: .rounded))
+                        .foregroundStyle(Color(red: 0.55, green: 0.83, blue: 1.00))
+                }
+
+                HStack {
+                    Text("Round Setup")
+                        .font(.system(size: 28, weight: .black, design: .rounded))
+                        .foregroundStyle(.white)
+                    Spacer()
+                }
+
+                TimerControlCard(
+                    minutes: Binding(
+                        get: { viewModel.timerMinutes },
+                        set: { viewModel.setTimerMinutes($0) }
+                    )
+                )
+
+                TriesControlCard(
+                    usesTryLimit: Binding(
+                        get: { viewModel.usesTryLimit },
+                        set: { viewModel.setUsesTryLimit($0) }
+                    ),
+                    tries: Binding(
+                        get: { viewModel.maxWrongGuesses },
+                        set: { viewModel.setMaxWrongGuesses($0) }
+                    )
+                )
+
+                Button(action: onStart) {
+                    Text("Start Round")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(Color(red: 0.11, green: 0.84, blue: 0.55))
+                        )
+                        .foregroundStyle(.black)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
+            }
+            .padding(.bottom, 20)
         }
     }
 }
@@ -194,6 +313,8 @@ private struct CategorySelectionView: View {
 
 private struct GameScreenView: View {
     @ObservedObject var viewModel: GameViewModel
+    let onBackToSetup: () -> Void
+    let onBackToGrade: () -> Void
 
     private let letters = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     private let keyboardColumns = Array(repeating: GridItem(.flexible(), spacing: 8), count: 7)
@@ -204,9 +325,9 @@ private struct GameScreenView: View {
             VStack(spacing: 12) {
                 HStack {
                     Button {
-                        viewModel.backToCategorySelection()
+                        onBackToSetup()
                     } label: {
-                        Label("Categories", systemImage: "chevron.left")
+                        Label("Setup", systemImage: "chevron.left")
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                     }
                     .buttonStyle(.plain)
@@ -221,22 +342,25 @@ private struct GameScreenView: View {
 
                 HStack(spacing: 10) {
                     StatChip(title: "Timer", value: viewModel.timerText, color: Color(red: 0.13, green: 0.44, blue: 0.88))
-                    StatChip(title: "Tries Left", value: "\(viewModel.triesLeft)", color: Color(red: 0.89, green: 0.28, blue: 0.29))
-                    StatChip(title: "Goal", value: "Vanish Rob", color: Color(red: 0.11, green: 0.72, blue: 0.50))
+                    StatChip(
+                        title: viewModel.usesTryLimit ? "Tries Left" : "Try Limit",
+                        value: viewModel.usesTryLimit ? viewModel.triesLeftText : "Off",
+                        color: Color(red: 0.89, green: 0.28, blue: 0.29)
+                    )
+                    StatChip(title: "Goal", value: "Erase Rob", color: Color(red: 0.11, green: 0.72, blue: 0.50))
                 }
 
-                VanishingRobotView(
-                    vanishProgress: viewModel.vanishProgress,
+                RobotDisassemblyView(
+                    removedPartCount: viewModel.removedRobotPartCount,
                     correctLetters: viewModel.correctLetterCount,
                     totalLetters: viewModel.uniqueAnswerLetterCount,
-                    wrongGuesses: viewModel.wrongGuesses
+                    wrongGuesses: viewModel.wrongGuesses,
+                    maxWrongGuesses: viewModel.maxWrongGuesses,
+                    usesTryLimit: viewModel.usesTryLimit
                 )
 
                 if let puzzle = viewModel.currentPuzzle {
-                    ClueCard(
-                        puzzle: puzzle,
-                        isRobotCategory: viewModel.selectedCategory?.isRobotCategory ?? false
-                    )
+                    ClueCard(puzzle: puzzle)
                 }
 
                 WordTilesView(viewModel: viewModel)
@@ -286,15 +410,30 @@ private struct GameScreenView: View {
                         .buttonStyle(.plain)
 
                         Button {
-                            viewModel.backToCategorySelection()
+                            onBackToSetup()
                         } label: {
-                            Text("New Category")
+                            Text("Settings")
                                 .font(.system(size: 18, weight: .black, design: .rounded))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
                                 .background(
                                     RoundedRectangle(cornerRadius: 14)
                                         .fill(Color(red: 0.45, green: 0.78, blue: 1.00))
+                                )
+                                .foregroundStyle(.black)
+                        }
+                        .buttonStyle(.plain)
+
+                        Button {
+                            onBackToGrade()
+                        } label: {
+                            Text("Grades")
+                                .font(.system(size: 18, weight: .black, design: .rounded))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .fill(Color(red: 0.94, green: 0.76, blue: 0.30))
                                 )
                                 .foregroundStyle(.black)
                         }
@@ -342,9 +481,9 @@ private struct GameScreenView: View {
     private var statusTitle: String {
         switch viewModel.gameState {
         case .idle, .playing:
-            return "Make Robot Rob Vanish!"
+            return "Erase Robot Rob Parts!"
         case .won:
-            return "Robot Rob Vanished!"
+            return "Robot Rob Fully Erased!"
         case .lostByTries:
             return "Out Of Tries"
         case .lostByTimer:
@@ -355,11 +494,11 @@ private struct GameScreenView: View {
     private var statusSubtitle: String {
         switch viewModel.gameState {
         case .idle, .playing:
-            return "Correct letters make Rob disappear. Wrong letters only use tries."
+            return "Each correct letter removes parts in order until Rob is gone."
         case .won:
-            return "Awesome! You finished the word and made Rob vanish."
+            return "Awesome! You solved the word and erased every part."
         case .lostByTries:
-            return "You used all 10 tries. Start a new word and try again."
+            return "You used all tries. Adjust settings and try again."
         case .lostByTimer:
             return "You ran out of time. Try another round."
         }
@@ -439,19 +578,30 @@ private struct WordTilesView: View {
     }
 }
 
-private struct VanishingRobotView: View {
-    let vanishProgress: Double
+private struct RobotDisassemblyView: View {
+    private enum RobotPart: CaseIterable {
+        case leftAntenna
+        case rightAntenna
+        case leftArm
+        case rightArm
+        case leftLeg
+        case rightLeg
+        case body
+        case head
+    }
+
+    let removedPartCount: Int
     let correctLetters: Int
     let totalLetters: Int
     let wrongGuesses: Int
+    let maxWrongGuesses: Int
+    let usesTryLimit: Bool
 
     var body: some View {
-        let clampedProgress = min(max(vanishProgress, 0.0), 1.0)
-        let robotOpacity = max(0.0, 1.0 - clampedProgress)
-        let robotScale = CGFloat(1.0 - (0.15 * clampedProgress))
+        let removed = min(max(removedPartCount, 0), RobotPart.allCases.count)
 
         VStack(spacing: 6) {
-            Text("Robot Rob Vanish Meter")
+            Text("Robot Rob Erase Meter")
                 .font(.system(size: 23, weight: .black, design: .rounded))
                 .foregroundStyle(.white)
 
@@ -459,20 +609,36 @@ private struct VanishingRobotView: View {
                 .font(.system(size: 15, weight: .bold, design: .rounded))
                 .foregroundStyle(Color(red: 0.60, green: 0.86, blue: 1.00))
 
-            Text("Wrong Guesses: \(wrongGuesses)/10")
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 1.00, green: 0.64, blue: 0.66))
+            if usesTryLimit {
+                Text("Wrong Guesses: \(wrongGuesses)/\(maxWrongGuesses)")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 1.00, green: 0.64, blue: 0.66))
+            } else {
+                Text("Wrong Guesses: \(wrongGuesses)")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color(red: 1.00, green: 0.64, blue: 0.66))
+            }
 
-            Image("robot_rob")
-                .resizable()
-                .interpolation(.high)
-                .scaledToFit()
-                .frame(height: 220)
-                .saturation(1.04)
-                .contrast(1.02)
-                .opacity(robotOpacity)
-                .scaleEffect(robotScale)
-                .animation(.easeInOut(duration: 0.35), value: clampedProgress)
+            ZStack {
+                Image("robot_rob_split")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFill()
+                    .frame(width: 240, height: 360)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                GeometryReader { geometry in
+                    ForEach(Array(RobotPart.allCases.enumerated()), id: \.offset) { index, part in
+                        if index < removed {
+                            partMaskView(for: part, in: geometry.size)
+                                .blendMode(.destinationOut)
+                        }
+                    }
+                }
+                .frame(width: 240, height: 360)
+            }
+            .compositingGroup()
+            .animation(.easeInOut(duration: 0.35), value: removed)
         }
         .frame(maxWidth: .infinity)
         .padding(12)
@@ -485,51 +651,64 @@ private struct VanishingRobotView: View {
                 )
         )
     }
+
+    @ViewBuilder
+    private func partMaskView(for part: RobotPart, in size: CGSize) -> some View {
+        switch part {
+        case .leftAntenna:
+            Circle()
+                .fill(Color.white)
+                .frame(width: size.width * 0.15, height: size.width * 0.15)
+                .position(x: size.width * 0.38, y: size.height * 0.86)
+        case .rightAntenna:
+            Circle()
+                .fill(Color.white)
+                .frame(width: size.width * 0.15, height: size.width * 0.15)
+                .position(x: size.width * 0.63, y: size.height * 0.86)
+        case .leftArm:
+            RoundedRectangle(cornerRadius: size.width * 0.10)
+                .fill(Color.white)
+                .frame(width: size.width * 0.26, height: size.height * 0.26)
+                .position(x: size.width * 0.16, y: size.height * 0.47)
+        case .rightArm:
+            RoundedRectangle(cornerRadius: size.width * 0.10)
+                .fill(Color.white)
+                .frame(width: size.width * 0.26, height: size.height * 0.26)
+                .position(x: size.width * 0.84, y: size.height * 0.47)
+        case .leftLeg:
+            RoundedRectangle(cornerRadius: size.width * 0.10)
+                .fill(Color.white)
+                .frame(width: size.width * 0.25, height: size.height * 0.31)
+                .position(x: size.width * 0.26, y: size.height * 0.69)
+        case .rightLeg:
+            RoundedRectangle(cornerRadius: size.width * 0.10)
+                .fill(Color.white)
+                .frame(width: size.width * 0.25, height: size.height * 0.31)
+                .position(x: size.width * 0.74, y: size.height * 0.69)
+        case .body:
+            RoundedRectangle(cornerRadius: size.width * 0.08)
+                .fill(Color.white)
+                .frame(width: size.width * 0.48, height: size.height * 0.18)
+                .position(x: size.width * 0.50, y: size.height * 0.46)
+        case .head:
+            RoundedRectangle(cornerRadius: size.width * 0.10)
+                .fill(Color.white)
+                .frame(width: size.width * 0.72, height: size.height * 0.26)
+                .position(x: size.width * 0.50, y: size.height * 0.16)
+        }
+    }
 }
 
 private struct ClueCard: View {
     let puzzle: PuzzleWord
-    let isRobotCategory: Bool
 
     var body: some View {
         VStack(spacing: 8) {
-            ZStack(alignment: .topTrailing) {
-                Image(puzzle.clueImageAssetName)
-                    .resizable()
-                    .interpolation(.high)
-                    .scaledToFit()
-                    .frame(height: 190)
-                    .frame(maxWidth: .infinity)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            Text("Hint")
+                .font(.system(size: 18, weight: .black, design: .rounded))
+                .foregroundStyle(.white)
 
-                if isRobotCategory {
-                    HStack(spacing: 4) {
-                        Image("robot_rob")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 22, height: 22)
-                        Text("Robot Rob")
-                            .font(.system(size: 12, weight: .black, design: .rounded))
-                    }
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 5)
-                    .background(
-                        Capsule()
-                            .fill(Color.white.opacity(0.95))
-                            .overlay(
-                                Capsule()
-                                    .stroke(Color(red: 0.93, green: 0.31, blue: 0.33), lineWidth: 2)
-                            )
-                    )
-                    .padding(8)
-                }
-            }
-
-            Text("Clue")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.72))
-
-            Text(puzzle.clue)
+            Text(normalizedHint(puzzle.clue))
                 .font(.system(size: 18, weight: .black, design: .rounded))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white)
@@ -545,6 +724,30 @@ private struct ClueCard: View {
                         .stroke(Color(red: 0.43, green: 0.77, blue: 1.00), lineWidth: 2.5)
                 )
         )
+    }
+
+    private func normalizedHint(_ clue: String) -> String {
+        let words = clue
+            .replacingOccurrences(of: "[^A-Za-z0-9 ]+", with: " ", options: .regularExpression)
+            .split(whereSeparator: \.isWhitespace)
+            .map(String.init)
+
+        if words.count >= 5, words.count <= 10 {
+            return words.joined(separator: " ")
+        }
+
+        if words.count < 5 {
+            var padded = words
+            let filler = ["think", "carefully", "about", "this", "word"]
+            var index = 0
+            while padded.count < 5 {
+                padded.append(filler[index % filler.count])
+                index += 1
+            }
+            return padded.joined(separator: " ")
+        }
+
+        return words.prefix(10).joined(separator: " ")
     }
 }
 
@@ -576,6 +779,44 @@ private struct TimerControlCard: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(Color(red: 0.43, green: 0.77, blue: 1.00), lineWidth: 2.5)
+                )
+        )
+    }
+}
+
+private struct TriesControlCard: View {
+    @Binding var usesTryLimit: Bool
+    @Binding var tries: Int
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Toggle(isOn: $usesTryLimit) {
+                Text("Use Try Limit")
+                    .font(.system(size: 20, weight: .black, design: .rounded))
+                    .foregroundStyle(.white)
+            }
+            .toggleStyle(.switch)
+            .tint(Color(red: 0.95, green: 0.34, blue: 0.36))
+
+            if usesTryLimit {
+                Stepper {
+                    Text("\(tries) tries")
+                        .font(.system(size: 20, weight: .black, design: .rounded))
+                        .foregroundStyle(Color(red: 1.00, green: 0.64, blue: 0.66))
+                } onIncrement: {
+                    tries = min(12, tries + 1)
+                } onDecrement: {
+                    tries = max(1, tries - 1)
+                }
+            }
+        }
+        .padding(12)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(red: 0.13, green: 0.17, blue: 0.27))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color(red: 0.95, green: 0.34, blue: 0.36), lineWidth: 2.5)
                 )
         )
     }

@@ -10,14 +10,14 @@ enum LetterButtonState {
 }
 
 final class GameViewModel: ObservableObject {
-    let maxWrongGuesses = 10
-
     @Published private(set) var selectedGrade: GradeLevel?
     @Published private(set) var selectedCategory: WordCategory?
     @Published private(set) var currentPuzzle: PuzzleWord?
     @Published private(set) var gameState: GameState = .idle
     @Published private(set) var guessedLetters: Set<Character> = []
     @Published private(set) var wrongGuesses = 0
+    @Published private(set) var maxWrongGuesses = 8
+    @Published private(set) var usesTryLimit = true
     @Published private(set) var timerMinutes = 10
     @Published private(set) var secondsRemaining = 10 * 60
 
@@ -40,7 +40,12 @@ final class GameViewModel: ObservableObject {
     }
 
     var triesLeft: Int {
-        max(0, maxWrongGuesses - wrongGuesses)
+        guard usesTryLimit else { return Int.max }
+        return max(0, maxWrongGuesses - wrongGuesses)
+    }
+
+    var triesLeftText: String {
+        usesTryLimit ? "\(triesLeft)" : "∞"
     }
 
     var currentAnswer: String {
@@ -56,11 +61,17 @@ final class GameViewModel: ObservableObject {
         return guessedLetters.intersection(answerLetters).count
     }
 
-    var vanishProgress: Double {
-        guard uniqueAnswerLetterCount > 0 else { return 0.0 }
-        if gameState == .won { return 1.0 }
+    var removedRobotPartCount: Int {
+        guard uniqueAnswerLetterCount > 0 else { return 0 }
+        if correctLetterCount == 0 { return 0 }
+        if gameState == .won { return 8 }
 
-        return min(1.0, Double(correctLetterCount) / Double(uniqueAnswerLetterCount))
+        if uniqueAnswerLetterCount >= 8 {
+            return min(8, correctLetterCount)
+        }
+
+        let stepped = Int(ceil(Double(correctLetterCount) * 8.0 / Double(uniqueAnswerLetterCount)))
+        return min(8, stepped)
     }
 
     func setTimerMinutes(_ value: Int) {
@@ -70,9 +81,17 @@ final class GameViewModel: ObservableObject {
         }
     }
 
+    func setMaxWrongGuesses(_ value: Int) {
+        maxWrongGuesses = min(12, max(1, value))
+    }
+
+    func setUsesTryLimit(_ value: Bool) {
+        usesTryLimit = value
+    }
+
     func selectGrade(_ grade: GradeLevel) {
         selectedGrade = grade
-        selectedCategory = nil
+        selectedCategory = GameData.categories(for: grade).first(where: \.isRobotCategory)
         currentPuzzle = nil
         gameState = .idle
         guessedLetters.removeAll()
@@ -109,6 +128,10 @@ final class GameViewModel: ObservableObject {
     }
 
     func startRound() {
+        if selectedCategory == nil, let selectedGrade {
+            selectedCategory = GameData.categories(for: selectedGrade).first(where: \.isRobotCategory)
+        }
+
         guard let selectedCategory else { return }
 
         let available = selectedCategory.words.filter {
@@ -164,7 +187,7 @@ final class GameViewModel: ObservableObject {
         wrongGuesses += 1
         KidSoundEffects.wrongGuess()
 
-        if wrongGuesses >= maxWrongGuesses {
+        if usesTryLimit, wrongGuesses >= maxWrongGuesses {
             gameState = .lostByTries
             KidSoundEffects.roundFailed()
         }
